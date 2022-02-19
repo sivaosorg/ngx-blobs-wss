@@ -5,13 +5,19 @@ import com.phuocnguyen.app.ngxblobssrv.service.NgxTunnelSocketBaseService;
 import com.phuocnguyen.app.ngxblobssrv.service.NgxWebsocketBaseService;
 import com.phuocnguyen.app.ngxblobssrv.service.serviceImpl.NgxTunnelSocketBaseServiceImpl;
 import com.phuocnguyen.app.ngxblobssrv.service.serviceImpl.NgxWebsocketBaseServiceImpl;
+import com.phuocnguyen.app.ngxblobswss.model.interceptor.NgxHttpSessionHandshakeInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
+
+/*
+implementation group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: '2.4.5'
+*/
 
 @SuppressWarnings({"All"})
 @Configuration
@@ -48,6 +54,9 @@ public class NgxWebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        ngxTunnelSocketBaseService.registerTunnelsSocketHandlers(registry, ngxWebsocketBaseService(), tunnelSocketProperties);
+        HandshakeInterceptor[] handshakeInterceptors = new HandshakeInterceptor[]{
+                new NgxHttpSessionHandshakeInterceptor()
+        };
+        ngxTunnelSocketBaseService.registerTunnelsSocketHandlers(registry, handshakeInterceptors, ngxWebsocketBaseService(), tunnelSocketProperties);
     }
 }
