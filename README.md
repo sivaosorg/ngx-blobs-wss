@@ -36,3 +36,20 @@ spring:
         endpoint-short-url: /publish/action
         endpoint-description: tunning on socket v2
 ```
+
+#### Services
+
+- `NgxWebsocketBaseService`: this service use to publish event
+
+  - `MessagesSocketPublisherRequest<?>`: model will be published event
+  
+```json
+  {
+    "topic": "CALLBACK",
+    "message": {
+        "username": "oses01@gmail.com",
+        "age": 32,
+        "content": "this is me"
+    }
+  }
+```
