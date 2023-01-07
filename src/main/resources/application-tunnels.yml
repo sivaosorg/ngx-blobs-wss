@@ -1,0 +1,10 @@
+spring:
+  tunnel-socket-starter:
+    enabled: false
+    tunnels:
+      - enabled: true
+        endpoint-short-url: /publish/event
+        endpoint-description: tunning on socket v1
+      - enabled: true
+        endpoint-short-url: /publish/action
+        endpoint-description: tunning on socket v2
