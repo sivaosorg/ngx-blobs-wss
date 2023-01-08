@@ -70,9 +70,12 @@ public class NgxWssClustersConfig {
         if (logger.isInfoEnabled()) {
             logger.info("(on_message). uri = {}, message = {}", session.getRequestURI().getPath(), JsonUtility.minify(message));
         }
-        for (NgxAppIdHandlersBaseService handler : handlers) {
-            if (Objects.equals(handler.getAppId(), appId)) {
-                handler.publishEvent(message, session);
+
+        if (CollectionsUtility.isNotEmpty(handlers)) {
+            for (NgxAppIdHandlersBaseService handler : handlers) {
+                if (Objects.equals(handler.getAppId(), appId)) {
+                    handler.publishEvent(message, session);
+                }
             }
         }
     }
