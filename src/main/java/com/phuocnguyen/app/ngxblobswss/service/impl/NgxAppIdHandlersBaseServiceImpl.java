@@ -1,9 +1,10 @@
-package com.phuocnguyen.app.ngxblobswss.service;
+package com.phuocnguyen.app.ngxblobswss.service.impl;
 
 import com.ngxsivaos.model.request.MessagesSocketPublisherRequest;
 import com.ngxsivaos.utilities.JsonUtility;
 import com.ngxsivaos.utils.ViolationUtils;
 import com.phuocnguyen.app.ngxblobswss.config.NgxWssClustersConfig;
+import com.phuocnguyen.app.ngxblobswss.service.NgxAppIdHandlersBaseService;
 import com.sivaos.Utility.CollectionsUtility;
 import com.sivaos.Utility.StringUtility;
 import com.sivaos.Utils.ObjectUtils;
@@ -21,10 +22,10 @@ import java.util.Set;
         "FieldCanBeLocal",
         "DuplicatedCode"
 })
-@Service(value = "ngxWssHandlersService")
-public class NgxWssHandlersService implements NgxAppIdHandlersBaseService {
+@Service(value = "ngxAppIdHandlersBaseService")
+public class NgxAppIdHandlersBaseServiceImpl implements NgxAppIdHandlersBaseService {
 
-    private static final Logger logger = LoggerFactory.getLogger(NgxWssHandlersService.class);
+    private static final Logger logger = LoggerFactory.getLogger(NgxAppIdHandlersBaseServiceImpl.class);
 
     private String appId;
 
@@ -51,10 +52,10 @@ public class NgxWssHandlersService implements NgxAppIdHandlersBaseService {
         NgxWssClustersConfig cluster = new NgxWssClustersConfig();
         Set<NgxAppIdHandlersBaseService> handlers = new HashSet<>();
 
-        handlers.add(new NgxWssHandlersService());
+        handlers.add(new NgxAppIdHandlersBaseServiceImpl());
         cluster.setAppIdHandlers(handlers);
 
-        LinkedHashSet<Session> sessions = cluster.getSessions(getAppId());
+        LinkedHashSet<Session> sessions = cluster.getSessions(StringUtility.trimSingleWhitespace(getAppId()));
 
         if (CollectionsUtility.isNotEmpty(sessions)) {
             for (Session session : sessions) {
@@ -98,5 +99,16 @@ public class NgxWssHandlersService implements NgxAppIdHandlersBaseService {
         ViolationUtils.isConfirmed(message);
         validatePayload(message, fieldsIgnored);
         publishEvent(JsonUtility.toJsonFieldsIgnored(message, fieldsIgnored), null);
+    }
+
+    @Override
+    public void publishEvent(String appId, @Valid MessagesSocketPublisherRequest<?> message, String... fieldsIgnored) {
+        setAppId(appId);
+        publishEvent(message, fieldsIgnored);
+    }
+
+    @Override
+    public void publishEvent(@Valid MessagesSocketPublisherRequest<?> message) {
+        publishEvent(message, new String[]{});
     }
 }

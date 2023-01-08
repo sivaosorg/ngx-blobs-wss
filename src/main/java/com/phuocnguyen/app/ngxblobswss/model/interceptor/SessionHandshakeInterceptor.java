@@ -16,10 +16,10 @@ import java.util.Enumeration;
 import java.util.Map;
 
 @SuppressWarnings({"FieldMayBeFinal"})
-public class NgxHttpSessionHandshakeInterceptor implements HandshakeInterceptor {
+public class SessionHandshakeInterceptor implements HandshakeInterceptor {
 
     public static final String HTTP_SESSION_ID_ATTR_NAME = "HTTP.SESSION.ID";
-    private static final Logger logger = LoggerFactory.getLogger(NgxHttpSessionHandshakeInterceptor.class);
+    private static final Logger logger = LoggerFactory.getLogger(SessionHandshakeInterceptor.class);
     private Collection<String> attributeNames;
 
     private boolean copyAllAttributes;
@@ -28,12 +28,12 @@ public class NgxHttpSessionHandshakeInterceptor implements HandshakeInterceptor 
 
     private boolean createSession;
 
-    public NgxHttpSessionHandshakeInterceptor() {
+    public SessionHandshakeInterceptor() {
         this.attributeNames = Collections.emptyList();
         this.copyAllAttributes = true;
     }
 
-    public NgxHttpSessionHandshakeInterceptor(Collection<String> attributeNames) {
+    public SessionHandshakeInterceptor(Collection<String> attributeNames) {
         this.attributeNames = Collections.unmodifiableCollection(attributeNames);
         this.copyAllAttributes = false;
     }

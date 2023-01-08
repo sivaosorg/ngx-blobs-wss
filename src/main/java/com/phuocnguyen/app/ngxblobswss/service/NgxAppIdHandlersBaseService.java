@@ -13,5 +13,9 @@ public interface NgxAppIdHandlersBaseService {
 
     void publishEvent(String message, Session session);
 
+    void publishEvent(@Valid MessagesSocketPublisherRequest<?> message);
+
     void publishEvent(@Valid MessagesSocketPublisherRequest<?> message, String... fieldsIgnored);
+
+    void publishEvent(String appId, @Valid MessagesSocketPublisherRequest<?> message, String... fieldsIgnored);
 }

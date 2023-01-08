@@ -2,8 +2,10 @@ package com.phuocnguyen.app.ngxblobswss.config;
 
 import com.ngxsivaos.model.request.MessagesSocketPublisherRequest;
 import com.ngxsivaos.utilities.JsonUtility;
+import com.phuocnguyen.app.ngxblobswss.model.context.WebSocketRequestDataContext;
 import com.phuocnguyen.app.ngxblobswss.service.NgxAppIdHandlersBaseService;
 import com.sivaos.Utility.CollectionsUtility;
+import com.sivaos.Utils.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -11,9 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -38,6 +38,18 @@ public class NgxWssClustersConfig {
         sessions.add(session);
         if (logger.isInfoEnabled()) {
             logger.info("(on_open). app_id '{}' registered successfully, size of sessions {}", appId, sessions.size());
+        }
+
+        WebSocketRequestDataContext context = WebSocketRequestDataContext.getCurrentInstance();
+
+        if (ObjectUtils.allNotNull(context)) {
+            Map<String, List<String>> headers = context.getHeaders();
+            String address = context.getRemoteAddr();
+
+            session.getUserProperties().put("headers", headers);
+            session.getUserProperties().put("remote_addr", address);
+
+            WebSocketRequestDataContext.setCurrentInstance(null);
         }
     }
 
@@ -82,7 +94,7 @@ public class NgxWssClustersConfig {
      */
     public void publishEvent(Session session, String message) {
         try {
-            session.getBasicRemote().sendText(message);
+            session.getAsyncRemote().sendText(message);
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
                 logger.error(e.getMessage(), e);
@@ -96,7 +108,7 @@ public class NgxWssClustersConfig {
      */
     public void publishEvent(Session session, MessagesSocketPublisherRequest<?> message, String... fieldsIgnored) {
         try {
-            session.getBasicRemote().sendText(JsonUtility.toJsonFieldsIgnored(message, fieldsIgnored));
+            publishEvent(session, JsonUtility.toJsonFieldsIgnored(message, fieldsIgnored));
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
                 logger.error(e.getMessage(), e);
