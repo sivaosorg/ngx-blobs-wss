@@ -6,6 +6,7 @@ import com.phuocnguyen.app.ngxblobssrv.service.NgxWebsocketBaseService;
 import com.phuocnguyen.app.ngxblobssrv.service.serviceImpl.NgxTunnelSocketBaseServiceImpl;
 import com.phuocnguyen.app.ngxblobssrv.service.serviceImpl.NgxWebsocketBaseServiceImpl;
 import com.phuocnguyen.app.ngxblobswss.model.interceptor.NgxHttpSessionHandshakeInterceptor;
+import com.phuocnguyen.app.ngxblobswss.service.NgxWssHandlersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.HandshakeInterceptor;
+import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
 /*
@@ -22,7 +24,7 @@ implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web
 @SuppressWarnings({"All"})
 @Configuration
 @EnableWebSocket
-public class NgxWebSocketConfig implements WebSocketConfigurer {
+public class NgxWssConfig implements WebSocketConfigurer {
 
     @Autowired
     private TunnelSocketProperties tunnelSocketProperties;
@@ -58,5 +60,20 @@ public class NgxWebSocketConfig implements WebSocketConfigurer {
                 new NgxHttpSessionHandshakeInterceptor()
         };
         ngxTunnelSocketBaseService.registerTunnelsSocketHandlers(registry, handshakeInterceptors, ngxWebsocketBaseService(), tunnelSocketProperties);
+    }
+
+    /**
+     * @description If you are using the spring boot built-in web container tomcat, you need to add this class, otherwise an error will be reported
+     * If you use an external web container, you don’t need to add it
+     */
+    @Bean
+    public ServerEndpointExporter serverEndpointExporter() {
+        return new ServerEndpointExporter();
+    }
+
+
+    @Bean
+    public NgxWssHandlersService ngxWssHandlersService() {
+        return new NgxWssHandlersService();
     }
 }
