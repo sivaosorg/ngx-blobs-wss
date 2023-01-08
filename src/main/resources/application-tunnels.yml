@@ -3,8 +3,17 @@ spring:
     enabled: false
     tunnels:
       - enabled: true
-        endpoint-short-url: /publish/event
+        endpoint-short-url: /event
         endpoint-description: tunning on socket v1
+        hashtag: $event
       - enabled: true
-        endpoint-short-url: /publish/action
+        endpoint-short-url: /action
         endpoint-description: tunning on socket v2
+        hashtag: $action
+    config:
+      enabled: false
+      allow-display-skipped-log: false # enable logging for messages
+    message:
+      fields-ignored:
+        - logs
+        - privileges

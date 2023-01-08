@@ -71,10 +71,9 @@ public class NgxWssConfig implements WebSocketConfigurer {
     public ServerEndpointExporter serverEndpointExporter() {
         return new ServerEndpointExporter();
     }
-
-
+    
     @Bean
     public NgxAppIdHandlersBaseService ngxAppIdHandlersBaseService() {
-        return new NgxAppIdHandlersBaseServiceImpl();
+        return new NgxAppIdHandlersBaseServiceImpl(tunnelSocketProperties);
     }
 }

@@ -38,6 +38,7 @@ public class NgxWssClustersConfig {
         sessions.add(session);
         if (logger.isInfoEnabled()) {
             logger.info("(on_open). app_id '{}' registered successfully, size of sessions {}", appId, sessions.size());
+            logger.info("(on_open). uri = {}, raw uri = {}", session.getRequestURI().getPath(), session.getRequestURI().getRawSchemeSpecificPart());
         }
 
         WebSocketRequestDataContext context = WebSocketRequestDataContext.getCurrentInstance();
@@ -66,6 +67,9 @@ public class NgxWssClustersConfig {
 
     @OnMessage
     public void _onMessage(String message, Session session, @PathParam(value = "appId") String appId) {
+        if (logger.isInfoEnabled()) {
+            logger.info("(on_message). uri = {}, message = {}", session.getRequestURI().getPath(), JsonUtility.minify(message));
+        }
         for (NgxAppIdHandlersBaseService handler : handlers) {
             if (Objects.equals(handler.getAppId(), appId)) {
                 handler.publishEvent(message, session);

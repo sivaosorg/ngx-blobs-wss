@@ -1,5 +1,6 @@
 package com.phuocnguyen.app.ngxblobswss.service.impl;
 
+import com.ngxsivaos.model.properties.TunnelSocketProperties;
 import com.ngxsivaos.model.request.MessagesSocketPublisherRequest;
 import com.ngxsivaos.utilities.JsonUtility;
 import com.ngxsivaos.utils.ViolationUtils;
@@ -10,6 +11,7 @@ import com.sivaos.Utility.StringUtility;
 import com.sivaos.Utils.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
@@ -17,6 +19,8 @@ import javax.websocket.Session;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SuppressWarnings({
         "FieldCanBeLocal",
@@ -27,7 +31,25 @@ public class NgxAppIdHandlersBaseServiceImpl implements NgxAppIdHandlersBaseServ
 
     private static final Logger logger = LoggerFactory.getLogger(NgxAppIdHandlersBaseServiceImpl.class);
 
+    private final TunnelSocketProperties properties;
+
+    private ExecutorService pool = Executors.newFixedThreadPool(DEFAULT_POOL_SIZE_THREAD);
     private String appId;
+
+    @Autowired
+    public NgxAppIdHandlersBaseServiceImpl(
+            TunnelSocketProperties properties) {
+        this.properties = properties;
+    }
+
+    private boolean hasSkippedLogs() {
+        return properties.getConfig().isAllowDisplaySkippedLog();
+    }
+
+    @Override
+    public void setPoolSizeThreads(int poolSizeThreads) {
+        this.pool = Executors.newFixedThreadPool(poolSizeThreads > 0 ? poolSizeThreads : DEFAULT_POOL_SIZE_THREAD);
+    }
 
     @Override
     public String getAppId() {
@@ -52,18 +74,29 @@ public class NgxAppIdHandlersBaseServiceImpl implements NgxAppIdHandlersBaseServ
         NgxWssClustersConfig cluster = new NgxWssClustersConfig();
         Set<NgxAppIdHandlersBaseService> handlers = new HashSet<>();
 
-        handlers.add(new NgxAppIdHandlersBaseServiceImpl());
+        handlers.add(new NgxAppIdHandlersBaseServiceImpl(properties));
         cluster.setAppIdHandlers(handlers);
 
         LinkedHashSet<Session> sessions = cluster.getSessions(StringUtility.trimSingleWhitespace(getAppId()));
 
-        if (CollectionsUtility.isNotEmpty(sessions)) {
-            for (Session session : sessions) {
-                if (session.isOpen()) {
-                    cluster.publishEvent(session, message);
+        this.pool.execute(() -> {
+            if (CollectionsUtility.isNotEmpty(sessions)) {
+                try {
+                    for (Session session : sessions) {
+                        if (session.isOpen()) {
+                            cluster.publishEvent(session, message);
+                        }
+                    }
+                } catch (Exception e) {
+                    if (logger.isErrorEnabled()) {
+                        logger.error(e.getMessage(), e);
+                        logger.error("func 'publishEvent' has an error occurred: {}, message: {}",
+                                e.getMessage(),
+                                JsonUtility.toJson(message));
+                    }
                 }
             }
-        }
+        });
     }
 
     /**

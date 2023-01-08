@@ -32,9 +32,18 @@ spring:
       - enabled: true # enable this url will be published
         endpoint-short-url: /publish/event # url websocket
         endpoint-description: tunning on socket v1
+        hashtag: $event
       - enabled: true
         endpoint-short-url: /publish/action
         endpoint-description: tunning on socket v2
+        hashtag: $action
+    config:
+      enabled: false
+      allow-display-skipped-log: false # enable logging for messages
+    message:
+      fields-ignored:
+        - logs
+        - privileges
 ```
 
 #### Services
