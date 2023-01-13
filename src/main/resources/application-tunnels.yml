@@ -3,13 +3,17 @@ spring:
     enabled: false
     tunnels:
       - enabled: true
-        endpoint-short-url: /event
-        endpoint-description: tunning on socket v1
-        hashtag: $event
-      - enabled: true
-        endpoint-short-url: /action
-        endpoint-description: tunning on socket v2
-        hashtag: $action
+        endpoint-app-id: pbx
+        endpoint-short-url: /endpoint/pbx
+        endpoint-description: tunning on socket ${spring.tunnel-socket-starter.tunnels[0].endpoint-short-url}
+        hashtag: '#pbx'
+        pool-threshold: 10
+      - enabled: false
+        endpoint-app-id: event-logs
+        endpoint-short-url: /endpoint/something
+        endpoint-description: tunning on socket ${spring.tunnel-socket-starter.tunnels[1].endpoint-short-url}
+        hashtag: '#topic-sample'
+        pool-threshold: 5
     config:
       enabled: false
       allow-display-skipped-log: false # enable logging for messages
